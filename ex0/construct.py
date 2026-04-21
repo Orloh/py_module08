@@ -6,7 +6,7 @@
 #    By: orhernan <orhernan@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/20 17:29:01 by orhernan          #+#    #+#              #
-#    Updated: 2026/04/20 17:59:07 by orhernan         ###   ########.fr        #
+#    Updated: 2026/04/21 16:24:55 by orhernan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,15 +29,15 @@ def print_outside_construct() -> None:
     print()
     
     print("To enter the construct, run:")
-    print("python -m venv matrix_env")
-    print("source matrix_env/bin/activate # On Unix")
-    print("matrix_env\\Scripts\\activate # On Windows")
+    print("python -m venv my_venv")
+    print("source my_venv/bin/activate # On Unix")
+    print("my_venv\\Scripts\\activate # On Windows")
     print()
     
     print("Then run this program again.")
 
 
-def pirnt_inside_construct() -> None:
+def print_inside_construct() -> None:
     env_path = sys.prefix
     env_name = os.path.basename(env_path)
 
@@ -68,7 +68,7 @@ def pirnt_inside_construct() -> None:
 def main() -> None:
     try:
         if is_virtual_env():
-            pirnt_inside_construct()
+            print_inside_construct()
         else:
             print_outside_construct()
     except Exception as error:
