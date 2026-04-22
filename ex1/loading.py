@@ -1,28 +1,33 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    loading.py                                         :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: orhernan <orhernan@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2026/04/20 18:13:31 by orhernan          #+#    #+#              #
-#    Updated: 2026/04/21 17:42:19 by orhernan         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+# *************************************************************************** #
+#                                                                             #
+#                                                        :::      ::::::::    #
+#   loading.py                                         :+:      :+:    :+:    #
+#                                                    +:+ +:+         +:+      #
+#   By: orhernan <orhernan@student.42.fr>          +#+  +:+       +#+         #
+#                                                +#+#+#+#+#+   +#+            #
+#   Created: 2026/04/20 18:13:31 by orhernan          #+#    #+#              #
+#   Updated: 2026/04/22 17:38:23 by orhernan         ###   ########.fr        #
+#                                                                             #
+# *************************************************************************** #
 
 import sys
 from importlib import metadata
 
+
 REQUIRED_PACKAGES = {
     "pandas": "Data manipulation",
     "numpy": "Numerical Computation",
-    "requests": "Network access",
     "matplotlib": "Visualization"
 }
 
+OPTIONAL_PACKAGES = {
+    "requests": "Network access"
+}
+
+
 def check_dependencies() -> tuple[dict[str, str], list[str]]:
-    installed = {}
-    missing = []
+    installed: dict[str, str] = {}
+    missing: list[str] = []
 
     for pkg in REQUIRED_PACKAGES:
         try:
@@ -32,17 +37,40 @@ def check_dependencies() -> tuple[dict[str, str], list[str]]:
 
     return installed, missing
 
-def print_loading_status(installed: dict[str, str], missing: list[str]) -> None:
+
+def check_optional_packages() -> dict[str, str]:
+    optional_installed: dict[str, str] = {}
+
+    for pkg in OPTIONAL_PACKAGES:
+        try:
+            optional_installed[pkg] = metadata.version(pkg)
+        except metadata.PackageNotFoundError:
+            pass
+    
+    return optional_installed
+
+
+def print_loading_status(
+        installed: dict[str, str],
+        missing: list[str],
+        optional_installed: dict[str, str]
+    ) -> None:
     print("LOADING STATUS: Loading programs...\n")
     print("Checking dependencies:")
     
-    for pkg in REQUIRED_PACKAGES:
+    for pkg, desc in REQUIRED_PACKAGES.items():
         if pkg in installed:
-            print(f"[OK] {pkg} ({installed[pkg]})")
+            print(f"[OK] {pkg} ({installed[pkg]}) - {desc} ready")
         else:
             print(f"[MISSING] {pkg}")
-            
-    print() # Empty line for formatting
+
+    for pkg, desc in OPTIONAL_PACKAGES.items():
+        if pkg in optional_installed:
+            print(f"[OK] {pkg} ({installed[pkg]}) - {desc} ready")
+        else:
+            print(f"[MISSING] {pkg} - not required")
+
+    print()
     
     if missing:
         print("ERROR: Missing required dependencies.")
@@ -51,11 +79,7 @@ def print_loading_status(installed: dict[str, str], missing: list[str]) -> None:
         print("To enter the construct with Poetry, run:")
         print("  poetry install")
         sys.exit(1)
-        
-    for pkg, desc in REQUIRED_PACKAGES.items():
-        if pkg in installed:
-            print(f"{desc} ready")
-    print()
+
 
 def fetch_rw_api_data(url: str) -> list[tuple[float, float]]:
     import requests
@@ -68,6 +92,7 @@ def fetch_rw_api_data(url: str) -> list[tuple[float, float]]:
     ]
     return data
 
+
 def generate_matrix_data(count: int = 1000) -> list[tuple[float, float]]:
     import numpy as np
 
@@ -75,6 +100,7 @@ def generate_matrix_data(count: int = 1000) -> list[tuple[float, float]]:
     rating = np.random.uniform(1.0, 5.0, count)
     data = list(zip(price, rating))
     return data 
+
 
 def save_data_viz(df: 'pd.DataFrame') -> None:
     import matplotlib.pyplot as plt
@@ -108,41 +134,49 @@ def save_data_viz(df: 'pd.DataFrame') -> None:
     print("Analysis complete!")
     print(f"Results saved to: {file_name}")
 
-def run_analysis() -> None:
+
+def run_analysis(optional_installed: dict[str, str]) -> None:
     import pandas as pd
-    import requests
 
     url = "https://dummyjson.com/products?limit=50"
     data_points = []
     world = ""
 
-    print("Trying to access the real world...")
-    try:
-        data_points = fetch_rw_api_data(url)
-        print("Succesfuly loaded real world data.")
-        print(f"Successfully loaded {len(data_points)} data points.")
-        world = "Real World"
-    except requests.exceptions.RequestException as e:
-        print(f"NETWORK ERROR: Failed to fetch data from the real world. {e}")
-        print()
-
-        print(f"You're still inside The Matrix.")
-        print()
+    if "requests" in optional_installed:
+        import requests
         
-        print(f"Generating Matrix data...")
-        data_points = generate_matrix_data(1000)
-        print(f"Generated {len(data_points)} data points.")
-        world = "Matrix"
+        print("Trying to access the real world...")
+        
+        try:
+            data_points = fetch_rw_api_data(url)
+            print("Succesfuly loaded real world data.")
+            print(f"Successfully loaded {len(data_points)} data points.")
+            world = "Real World"
+        
+        except requests.exceptions.RequestException as e:
+            print(f"NETWORK ERROR: Failed to fetch data from the real world. {e}")
+            print()
+
+            print(f"You're still inside The Matrix.")
+            print()
+        
+        if not data_points:
+            print(f"Generating Matrix data...")
+            data_points = generate_matrix_data(1000)
+            print(f"Generated {len(data_points)} data points.")
+            world = "Matrix"
 
     print(f"Analyzing {world} data...")
+    print(f"Processing {len(data_points)} data points...")
     df = pd.DataFrame(data_points, columns=['price', 'rating'])
     save_data_viz(df)
 
 def main() -> None:
     try:
         installed, missing = check_dependencies()
-        print_loading_status(installed, missing)
-        run_analysis()
+        optional_installed = check_optional_packages()
+        print_loading_status(installed, missing, optional_installed)
+        run_analysis(optional_installed)
     except Exception as e:
         print(f"CRITICAL ERROR: Matrix glitch detected. {e}")
         sys.exit(1)

@@ -3,6 +3,7 @@ name = "ex1-loading"
 version = "1.0.0"
 description = "Matrix Data Analysis Tool"
 authors = ["orhernan <orhernan@42.madrid>"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"

@@ -207,5 +207,7 @@ marimo/_lsp/
 __marimo__/
 
 matrix_env/
+my_env/
 venv/
 *.png
+poetry.lock
