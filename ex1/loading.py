@@ -12,6 +12,10 @@
 
 import sys
 from importlib import metadata
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 REQUIRED_PACKAGES = {
@@ -46,7 +50,7 @@ def check_optional_packages() -> dict[str, str]:
             optional_installed[pkg] = metadata.version(pkg)
         except metadata.PackageNotFoundError:
             pass
-    
+
     return optional_installed
 
 
@@ -54,10 +58,10 @@ def print_loading_status(
         installed: dict[str, str],
         missing: list[str],
         optional_installed: dict[str, str]
-    ) -> None:
+) -> None:
     print("LOADING STATUS: Loading programs...\n")
     print("Checking dependencies:")
-    
+
     for pkg, desc in REQUIRED_PACKAGES.items():
         if pkg in installed:
             print(f"[OK] {pkg} ({installed[pkg]}) - {desc} ready")
@@ -66,12 +70,12 @@ def print_loading_status(
 
     for pkg, desc in OPTIONAL_PACKAGES.items():
         if pkg in optional_installed:
-            print(f"[OK] {pkg} ({installed[pkg]}) - {desc} ready")
+            print(f"[OK] {pkg} ({optional_installed[pkg]}) - {desc} ready")
         else:
             print(f"[MISSING] {pkg} - not required")
 
     print()
-    
+
     if missing:
         print("ERROR: Missing required dependencies.")
         print("To enter the construct with pip, run:")
@@ -99,7 +103,7 @@ def generate_matrix_data(count: int = 1000) -> list[tuple[float, float]]:
     price = np.random.uniform(10, 2000, count)
     rating = np.random.uniform(1.0, 5.0, count)
     data = list(zip(price, rating))
-    return data 
+    return data
 
 
 def save_data_viz(df: 'pd.DataFrame') -> None:
@@ -107,8 +111,8 @@ def save_data_viz(df: 'pd.DataFrame') -> None:
     import numpy as np
 
     print("Generating visualization...")
-    
-    plt.figure(figsize=(8,6))
+
+    plt.figure(figsize=(8, 6))
     ax = plt.axes()
     ax.set_facecolor("black")
 
@@ -144,24 +148,27 @@ def run_analysis(optional_installed: dict[str, str]) -> None:
 
     if "requests" in optional_installed:
         import requests
-        
+
         print("Trying to access the real world...")
-        
+
         try:
             data_points = fetch_rw_api_data(url)
             print("Succesfuly loaded real world data.")
             print(f"Successfully loaded {len(data_points)} data points.")
             world = "Real World"
-        
+
         except requests.exceptions.RequestException as e:
-            print(f"NETWORK ERROR: Failed to fetch data from the real world. {e}")
+            print(
+                "NETWORK ERROR: Failed to fetch "
+                f"data from the real world. {e}"
+            )
             print()
 
-            print(f"You're still inside The Matrix.")
+            print("You're still inside The Matrix.")
             print()
-        
+
         if not data_points:
-            print(f"Generating Matrix data...")
+            print("Generating Matrix data...")
             data_points = generate_matrix_data(1000)
             print(f"Generated {len(data_points)} data points.")
             world = "Matrix"
@@ -170,6 +177,7 @@ def run_analysis(optional_installed: dict[str, str]) -> None:
     print(f"Processing {len(data_points)} data points...")
     df = pd.DataFrame(data_points, columns=['price', 'rating'])
     save_data_viz(df)
+
 
 def main() -> None:
     try:
@@ -180,6 +188,7 @@ def main() -> None:
     except Exception as e:
         print(f"CRITICAL ERROR: Matrix glitch detected. {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
