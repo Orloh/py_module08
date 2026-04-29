@@ -36,9 +36,12 @@ def get_config() -> dict[str, str]:
         raise EnvironmentError(
             f"Mainframe access denied. Missing: {', '.join(missing)}"
         )
+    
+    return config
 
 def main() -> None:
-    validate_cofig()
-    
+    config = get_config()
 
-print(config)
+
+if __name__ == "__main__":
+    main()
