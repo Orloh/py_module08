@@ -17,20 +17,26 @@ from dotenv import load_dotenv
 VALID_MODES: tuple[str, ...] = ("development", "production")
 
 def get_config() -> dict[str, str]:
-    load_dotenv()
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    env_path = os.path.join(script_dir, ".env")
+    
+    load_dotenv(dotenv_path=env_path)
+    print("we are here")
     config: dict[str, str] = {
         "mode": os.getenv("MATRIX_MODE", "development"),
         "db_url": os.getenv("DATABASE_URL", ""),
-        "apy_key": os.getenv("APY_KEY", ""),
+        "api_key": os.getenv("API_KEY", ""),
         "log_level": os.getenv("LOG_LEVEL", "INFO"),
         "zion_url": os.getenv("ZION_ENDPOINT", "")
     }
 
+    print(config)
+
     if config["mode"] not in VALID_MODES:
         raise ValueError(f"Unknown Matrix Mode: {config['mode']}")
 
-    required_keys: set[str] = {"DATABASE_URL", "API_KEY", "ZION_ENDPOINT"}
-    missing = [key for key in required_keys if not config[key]]
+    required_keys: set[str] = {"db_url", "api_key", "zion_url"}
+    missing = [key for key in required_keys if not config.get(key)]
 
     if missing:
         raise EnvironmentError(
@@ -40,7 +46,9 @@ def get_config() -> dict[str, str]:
     return config
 
 def main() -> None:
+
     config = get_config()
+    print(config)
 
 
 if __name__ == "__main__":
