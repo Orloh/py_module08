@@ -1,1 +1,17 @@
+.# Environment variables
 .env
+ 
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+ 
+# Virtual environments
+matrix_env/
+.venv/
+venv/
+env/
+ 
+# mypy / flake8 caches
+.mypy_cache/
+.flake8

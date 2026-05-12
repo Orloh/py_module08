@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # *************************************************************************** #
 #                                                                             #
 #                                                        :::      ::::::::    #
@@ -12,10 +13,6 @@
 
 import sys
 from importlib import metadata
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import pandas as pd
 
 
 REQUIRED_PACKAGES = {
